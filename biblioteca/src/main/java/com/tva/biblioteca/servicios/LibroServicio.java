@@ -1,18 +1,17 @@
 package com.tva.biblioteca.servicios;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.tva.biblioteca.entidades.Autor;
-import com.tva.biblioteca.entidades.Editorial;
-import com.tva.biblioteca.entidades.Libro;
-import com.tva.biblioteca.repositorios.AutorRepositorio;
-import com.tva.biblioteca.repositorios.EditorialRepositorio;
-import com.tva.biblioteca.repositorios.LibroRepositorio;
-
-import jakarta.transaction.Transactional;
+import com.tva.biblioteca.entidades.*;
+import com.tva.biblioteca.excepciones.*;
+import com.tva.biblioteca.repositorios.*;
 
 @Service
 public class LibroServicio {
@@ -38,5 +37,96 @@ public class LibroServicio {
         libro.setTitulo(titulo);
         libRepositorio.save(libro);
     }
+
+    @Transactional(readOnly = true)
+    public List<Libro> listarLibros(){
+        List<Libro> lista = new ArrayList<>();
+        lista =libRepositorio.findAll();
+        return lista;
+    }
+
+    @Transactional
+    public void modificarLibro(Long isbn, String titulo,int ejemplares, String autorId, String editorialId) throws LibraryException{
+        validar(ejemplares);
+        validar(editorialId);
+        validar(titulo);
+        validar(autorId);
+        Optional<Libro> respuestaLibro = libRepositorio.findById(isbn);
+        Optional<Autor> respuestaAutor = autorRepositorio.findById(autorId);
+        Optional<Editorial> respuestaEditorial = editorialRepositorio.findById(editorialId);
+
+        
+        if(!respuestaLibro.isPresent()){
+            throw new LibraryException("El isbn no se encuentra registrado");
+        }
+        if(!respuestaAutor.isPresent()){
+            throw new LibraryException("No encontramos ningun autor con el identificador: " + autorId);
+        }
+        if( respuestaEditorial.isPresent()){
+            throw new LibraryException("No encontramos ninguna editorial con el identificador: " + editorialId);
+        }
+        Libro libro = respuestaLibro.get();
+        Autor autor = respuestaAutor.get();
+        Editorial editorial = respuestaEditorial.get();
+        libro.setTitulo(titulo);
+        libro.setEjemplares(ejemplares);
+        libro.setAutor(autor);
+        libro.setEditorial(editorial);
+        libRepositorio.save(libro);
+         
+    }
+
+    @Transactional
+    public void modificarLibro(Long isbn,String titulo){
+        Optional<Libro> resp = libRepositorio.findById(isbn);
+        if(resp.isPresent()){
+            Libro libro = resp.get();
+            libro.setTitulo(titulo);
+            libRepositorio.save(libro);
+        }
+    }
+
+    @Transactional
+    public void modificarLibro(Long isbn,int ejemplares){
+        Optional<Libro> resp = libRepositorio.findById(isbn);
+        if(resp.isPresent()){
+            Libro libro = resp.get();
+            libro.setEjemplares(ejemplares);
+            libRepositorio.save(libro);
+        }
+    }
+
+    @Transactional
+    public void modificarLibro(Long isbn, Autor autor){
+        Optional<Libro> resp = libRepositorio.findById(isbn);
+        if(resp.isPresent()){
+            Libro libro = resp.get();
+            libro.setAutor(autor);
+            libRepositorio.save(libro);
+        }
+    }
+
+    @Transactional
+    public void modificarLibro(Long isbn, Editorial editorial){
+        Optional<Libro> resp = libRepositorio.findById(isbn);
+        if(resp.isPresent()){
+            Libro libro = resp.get();
+            libro.setEditorial(editorial);
+            libRepositorio.save(libro);
+        }
+    }
+
+    private void validar(String nombre) throws LibraryException{
+        if(nombre.isEmpty() || nombre ==null ){
+            throw new LibraryException("El string no puede ser nulo o estar vacío.");
+        }
+    }
+    private void validar(int ejemplares) throws LibraryException{
+        if(ejemplares<=0 ){
+            throw new LibraryException("No puede haber menos de 0 ejemplares.");
+        }
+    }
+    
+
 
 }

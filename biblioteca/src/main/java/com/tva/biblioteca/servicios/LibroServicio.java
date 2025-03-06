@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tva.biblioteca.entidades.*;
 import com.tva.biblioteca.excepciones.*;
 import com.tva.biblioteca.repositorios.*;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class LibroServicio {
@@ -25,9 +28,15 @@ public class LibroServicio {
     private EditorialRepositorio editorialRepositorio;
 
     @Transactional
-    public void crearLibro(Long isbn, String titulo, int ejemplares, String autorId, String editorialId){
-        Autor autor = autorRepositorio.findById(autorId).get();
-        Editorial editorial = editorialRepositorio.findById(editorialId).get();
+    public void crearLibro(Long isbn, String titulo, int ejemplares, String autorId, String editorialId) throws LibraryException{
+
+        validar(titulo);
+        validar(ejemplares);
+        validar(autorId);
+        validar(editorialId);
+        
+        Autor autor = autorRepositorio.findById(UUID.fromString(autorId)).get();
+        Editorial editorial = editorialRepositorio.findById(UUID.fromString(editorialId)).get();
         Libro libro = new Libro();
         libro.setAlta(new Date());
         libro.setAutor(autor);
@@ -52,8 +61,8 @@ public class LibroServicio {
         validar(titulo);
         validar(autorId);
         Optional<Libro> respuestaLibro = libRepositorio.findById(isbn);
-        Optional<Autor> respuestaAutor = autorRepositorio.findById(autorId);
-        Optional<Editorial> respuestaEditorial = editorialRepositorio.findById(editorialId);
+        Optional<Autor> respuestaAutor = autorRepositorio.findById(UUID.fromString(autorId));
+        Optional<Editorial> respuestaEditorial = editorialRepositorio.findById(UUID.fromString(editorialId));
 
         
         if(!respuestaLibro.isPresent()){
@@ -114,6 +123,12 @@ public class LibroServicio {
             libro.setEditorial(editorial);
             libRepositorio.save(libro);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Libro findById(Long isbn) throws EntityNotFoundException{
+        Libro libro = libRepositorio.getReferenceById(isbn);
+        return libro;
     }
 
     private void validar(String nombre) throws LibraryException{

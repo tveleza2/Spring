@@ -62,5 +62,11 @@ public class Libro {
     public String getTitulo() {
         return titulo;
     }
+
+    @Override
+    public String toString() {
+        // TODO Auto-generated method stub
+        return "Libro: [isbn: "+getIsbn()+", titulo: "+getTitulo()+", autor: "+autor.getNombre()+", editorial: "+editorial.getNombre()+", ejemplares: "+getEjemplares()+"]";
+    }
     
 }

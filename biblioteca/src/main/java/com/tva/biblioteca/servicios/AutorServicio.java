@@ -3,6 +3,7 @@ package com.tva.biblioteca.servicios;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.tva.biblioteca.entidades.Autor;
 import com.tva.biblioteca.excepciones.LibraryException;
 import com.tva.biblioteca.repositorios.AutorRepositorio;
+
+import jakarta.persistence.EntityNotFoundException;
 
 
 
@@ -39,13 +42,19 @@ public class AutorServicio {
     @Transactional
     public void modificarAutor(String nombre, String id) throws LibraryException{     
         validar(nombre);
-        Optional<Autor> respuesta = autorRepositorio.findById(id);
+        Optional<Autor> respuesta = autorRepositorio.findById(UUID.fromString(id));
         if (respuesta.isPresent()) {
             Autor autor = respuesta.get();
            
             autor.setNombre(nombre);
             autorRepositorio.save(autor);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Autor findById(String id) throws EntityNotFoundException{
+        Autor autor = autorRepositorio.getReferenceById(UUID.fromString(id));
+        return autor;
     }
 
     private void validar(String nombre) throws LibraryException{

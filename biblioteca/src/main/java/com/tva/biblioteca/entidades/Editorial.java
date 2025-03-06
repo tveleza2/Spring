@@ -1,29 +1,35 @@
 package com.tva.biblioteca.entidades;
-import org.hibernate.annotations.GenericGenerator;
+import java.util.UUID;
+
 import jakarta.persistence.*;
 
 @Entity
 public class Editorial {
     @Id
-    @GeneratedValue(generator="uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private UUID id;
 
     private String nombre;
 
     public Editorial(){}
 
     public String getId() {
-        return id;
+        return id.toString();
     }
     public String getNombre() {
         return nombre;
     }
     public void setId(String id) {
-        this.id = id;
+        this.id = UUID.fromString(id);
     }
     public void setNombre(String name) {
         this.nombre = name;
+    }
+    
+    @Override
+    public String toString() {
+        // TODO Auto-generated method stub
+        return "Editorial: [id: "+getId()+", nombre: "+getNombre()+"]";
     }
 
 }

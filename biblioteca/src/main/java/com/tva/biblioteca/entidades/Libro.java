@@ -1,5 +1,5 @@
 package com.tva.biblioteca.entidades;
-import java.sql.Date;
+import java.util.Date;
 import jakarta.persistence.*;
 
 

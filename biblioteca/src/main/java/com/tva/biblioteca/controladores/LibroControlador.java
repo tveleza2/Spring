@@ -74,15 +74,32 @@ public class LibroControlador {
     }
 
     @PostMapping("/modificar/{isbn}")
-    public String modificar(@PathVariable Long isbn, String titulo, Integer ejemplares, String autorId, String editorialId){
+    public String modificar(@PathVariable Long isbn, String titulo, Integer ejemplares, String idAutor, String idEditorial, ModelMap modelo) {
+        libroLog.log(Level.INFO, "idEditorial: "+idEditorial);
         try {
-            libroServicio.modificarLibro(isbn,titulo,ejemplares,autorId,editorialId);
+            
+            List<Autor> autores = autorServicio.listarAutores();
+            List<Editorial> editoriales = editorialServicio.listarEditoriales();
+
+            modelo.addAttribute("autores", autores);
+            modelo.addAttribute("editoriales", editoriales);
+
+            libroServicio.modificarLibro(isbn, titulo, ejemplares, idAutor, idEditorial);
+            
             return "redirect:../lista";
-        } catch (Exception e) {
-            libroLog.log(Level.SEVERE, e.getMessage(), e);
+
+        } catch (Exception ex) {
+            libroLog.log(Level.SEVERE, ex.getMessage(), ex);
+            List<Autor> autores = autorServicio.listarAutores();
+            List<Editorial> editoriales = editorialServicio.listarEditoriales();
+
+            modelo.put("error", ex.getMessage());
+
+            modelo.addAttribute("autores", autores);
+            modelo.addAttribute("editoriales", editoriales);
+
             return "libro_modificar.html";
         }
-        
     }
 
 

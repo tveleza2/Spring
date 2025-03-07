@@ -71,7 +71,7 @@ public class LibroServicio {
         if(!respuestaAutor.isPresent()){
             throw new LibraryException("No encontramos ningun autor con el identificador: " + autorId);
         }
-        if( !respuestaEditorial.isPresent()){
+        if(!respuestaEditorial.isPresent()){
             throw new LibraryException("No encontramos ninguna editorial con el identificador: " + editorialId);
         }
         Libro libro = respuestaLibro.get();

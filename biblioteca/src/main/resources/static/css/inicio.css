@@ -54,3 +54,25 @@
 .botonCargar:active{
     box-shadow: none;
 }
+.header{
+    background-image: url(../img/FondoZoom_2.jpg);
+    background-size: cover;
+    height: 550px;
+    display: flex;
+    justify-content: end;
+}
+
+.contenedorMain{
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tituloBiblioteca{
+    width: 80%;
+    text-align: center;
+    font-size: 40px;
+    margin-top: 80px;
+    font-weight: 500;
+}

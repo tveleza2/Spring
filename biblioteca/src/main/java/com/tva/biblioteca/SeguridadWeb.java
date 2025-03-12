@@ -19,7 +19,10 @@ public class SeguridadWeb {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
         .authorizeHttpRequests((authorize) -> authorize
-            .requestMatchers("/css/", "/js/", "/img/", "/**").permitAll())
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .requestMatchers("/css/**", "/js/**", "/img/**").permitAll()
+            .requestMatchers("/login","/registrar").permitAll()
+            .anyRequest().authenticated())
         .formLogin((form)->form
             .loginPage("/login")
             .loginProcessingUrl("/logincheck")

@@ -13,11 +13,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.tva.biblioteca.entidades.Usuario;
 import com.tva.biblioteca.enums.Rol;
 import com.tva.biblioteca.excepciones.AuthenticationException;
 import com.tva.biblioteca.repositorios.UsuarioRepositorio;
+
+import jakarta.servlet.http.HttpSession;
 
 @Service
 public class UsuarioServicio implements UserDetailsService {
@@ -49,6 +53,9 @@ public class UsuarioServicio implements UserDetailsService {
             List<GrantedAuthority> permisos = new ArrayList<>();
             GrantedAuthority p = new SimpleGrantedAuthority("ROLE_"+ user.getRol().toString());
             permisos.add(p);
+            ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+            HttpSession session = attr.getRequest().getSession(true);
+            session.setAttribute("usuariosession", user);
             return new User(user.getEmail(),user.getPassword(),permisos);
         }else{
             return null;

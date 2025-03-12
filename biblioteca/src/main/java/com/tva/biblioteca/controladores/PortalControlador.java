@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.tva.biblioteca.entidades.Usuario;
 import com.tva.biblioteca.servicios.UsuarioServicio;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping("/")
@@ -28,13 +31,13 @@ public class PortalControlador {
         return "index.html";
     }
     
-    @GetMapping("/registro")
+    @GetMapping("/registrar")
     public String registro(){
         return "registro.html";
     }
 
 
-    @PostMapping("/registro")
+    @PostMapping("/registrar")
     public String registrar(@RequestParam("nombre") String nombre, @RequestParam("email") String email, @RequestParam("password") String password,@RequestParam("password2") String password2, ModelMap modelo){
         try {
             usuarioServicio.crearUsuario(nombre, email, password, password2);
@@ -56,10 +59,13 @@ public class PortalControlador {
            return "login.html";
     }
    
-    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
     @GetMapping("/inicio")
-    public String inicio(ModelMap modelo) {
-
+    public String inicio(HttpSession session,ModelMap modelo) {
+        Usuario logged = (Usuario) session.getAttribute("usuariosession");
+        if(logged.getRol().toString().equals("ADMIN")){
+            return "redirect:/admin/dashboard";
+        }
         return "inicio.html";
     }
 }

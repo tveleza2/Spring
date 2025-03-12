@@ -15,5 +15,6 @@
             "password": "Dbroot2024."
         }
     ],
-    "java.configuration.updateBuildConfiguration": "interactive"
+    "java.configuration.updateBuildConfiguration": "interactive",
+    "maven.view": "hierarchical"
 }

@@ -2,6 +2,8 @@ package com.tva.biblioteca.servicios;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -62,7 +64,19 @@ public class UsuarioServicio implements UserDetailsService {
         }
     }
     
-
+    @Transactional
+    public void toggleRole(String id){
+        Optional<Usuario> resp = userRepo.findById(UUID.fromString(id));
+        if(resp.isPresent()){
+            Usuario user = resp.get();
+            if (user.getRol().equals(Rol.ADMIN)) {
+                user.setRol(Rol.USER);
+            }else{
+                user.setRol(Rol.ADMIN);
+            }
+            userRepo.save(user);
+        }
+    }
 
 
 

@@ -17,10 +17,9 @@ public class Article {
     private UUID articleId;
     private String articleName;
     private String description;
+    @Column(nullable = false,unique = true)
     private Integer articleNumber;
-
+    
     @ManyToOne
     private Factory factory;
-
-
 }

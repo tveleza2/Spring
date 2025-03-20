@@ -58,7 +58,7 @@ public class AutorServicio {
     }
 
     private void validar(String nombre) throws LibraryException{
-        if(nombre.isEmpty() || nombre ==null ){
+        if(nombre == null || nombre.isEmpty()){
             throw new LibraryException("El nombre no puede ser nulo o estar vacío.");
         }
     }

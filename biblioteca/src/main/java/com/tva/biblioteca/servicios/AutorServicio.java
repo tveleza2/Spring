@@ -26,6 +26,7 @@ public class AutorServicio {
 
     @Transactional
     public void crearAutor(String nombre) throws LibraryException{
+        nombre = nombre.trim();
         validar(nombre);
         Autor autor = new Autor();
         autor.setNombre(nombre);
@@ -41,6 +42,7 @@ public class AutorServicio {
 
     @Transactional
     public void modificarAutor(String nombre, String id) throws LibraryException{     
+        nombre = nombre.trim();
         validar(nombre);
         Optional<Autor> respuesta = autorRepositorio.findById(UUID.fromString(id));
         if (respuesta.isPresent()) {
@@ -54,6 +56,14 @@ public class AutorServicio {
     @Transactional(readOnly = true)
     public Autor findById(String id) throws EntityNotFoundException{
         Autor autor = autorRepositorio.getReferenceById(UUID.fromString(id));
+        return autor;
+    }
+
+    public Autor returnAutor(String nombre) throws LibraryException{
+        nombre = nombre.trim();
+        validar(nombre);
+        Autor autor = new Autor();
+        autor.setNombre(nombre);
         return autor;
     }
 

@@ -47,7 +47,6 @@ public class AutorServicio {
         Optional<Autor> respuesta = autorRepositorio.findById(UUID.fromString(id));
         if (respuesta.isPresent()) {
             Autor autor = respuesta.get();
-           
             autor.setNombre(nombre);
             autorRepositorio.save(autor);
         }

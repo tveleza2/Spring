@@ -5,19 +5,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.tva.biblioteca.entidades.Editorial;
 import com.tva.biblioteca.excepciones.LibraryException;
 import com.tva.biblioteca.servicios.EditorialServicio;
 
-@Controller
+@RestController
 @RequestMapping("/editorial")
 public class EditorialControlador {
     private Logger editorialLog = Logger.getLogger(EditorialControlador.class.getName());
@@ -30,18 +32,14 @@ public class EditorialControlador {
         return "editorial_form.html";
     }
 
-    @PostMapping("/registro")
-    public String registro(@RequestParam("nombre") String nombre,ModelMap modelo){
+    @PostMapping("/crear")
+    public ResponseEntity<Object> crearEditorial(@RequestParam("nombre") String nombre,ModelMap modelo){
         try {
             editorialServicio.crearEditorial(nombre);
-            modelo.put("exito", "La editorial se ha guardado de forma exitosa");
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (LibraryException e) {
-            editorialLog.log(Level.SEVERE, e.getMessage(), e);
-            System.out.println(editorialServicio.listarEditoriales().get(0).toString());
-            modelo.put("error", "No se pudo guardar la editorial");
-            return "editorial_form.html";
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return "index.html";
     }
     
     @GetMapping("/lista")
@@ -66,7 +64,7 @@ public class EditorialControlador {
     @PostMapping("/modificar/{id}")
     public String modificar(@PathVariable String id, String nombre, ModelMap modelo){
         try {
-            editorialServicio.modificarEditorial(nombre, id);
+            editorialServicio.modificarEditorial(nombre, id, true);
             return "redirect:../lista";
         } catch (Exception e) {
             editorialLog.log(Level.SEVERE, e.getMessage(), e);

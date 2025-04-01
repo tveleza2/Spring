@@ -26,6 +26,7 @@ public class EditorialServicio {
         validar(nombre);
         Editorial editorial = new Editorial();
         editorial.setNombre(nombre);
+        editorial.setActive(true);
         editorialRepositorio.save(editorial);
     }
 
@@ -33,16 +34,28 @@ public class EditorialServicio {
     public List<Editorial> listarEditoriales(){
         List<Editorial> lista = new ArrayList<>();
         lista = editorialRepositorio.findAll();
+        lista.removeIf(editorial->!editorial.isActive());
         return lista;
     }
 
     @Transactional
-    public void modificarEditorial(String nombre, String id) throws LibraryException{
+    public void modificarEditorial(String nombre, String id, boolean active) throws LibraryException{
         validar(nombre);
         Optional<Editorial> resp = editorialRepositorio.findById(UUID.fromString(id));
         if(resp.isPresent()){
             Editorial editorial = resp.get();
             editorial.setNombre(nombre);
+            editorial.setActive(active);
+            editorialRepositorio.save(editorial);
+        }
+    }
+
+    @Transactional
+    public void eliminarEditorial(String id)throws LibraryException{
+        Optional<Editorial> possibleEditorial = editorialRepositorio.findById(UUID.fromString(id));
+        if(possibleEditorial.isPresent()){
+            Editorial editorial = possibleEditorial.get();
+            editorial.setActive(false);
             editorialRepositorio.save(editorial);
         }
     }

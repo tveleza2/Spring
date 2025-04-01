@@ -5,6 +5,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.*;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,17 +39,14 @@ public class LibroControlador {
         return "libro_form.html";
     }
 
-    @PostMapping("/registro")
-    public String registro(@RequestParam(required = false) Long isbn, @RequestParam String titulo, @RequestParam(required = false) Integer ejemplares,@RequestParam String idAutor, @RequestParam String idEditorial, ModelMap modelo){
+    @PostMapping("/crear")
+    public ResponseEntity<Object> crearLibro(@RequestParam(required = false) Long isbn, @RequestParam String titulo, @RequestParam(required = false) Integer ejemplares,@RequestParam String idAutor, @RequestParam String idEditorial, ModelMap modelo){
         try {
-            libroServicio.crearLibro(isbn, titulo, ejemplares, idAutor, idEditorial);
-            modelo.put("exito", "El libro se guardó con éxito");
+            libroServicio.crearLibro(isbn, titulo, ejemplares, idAutor, idEditorial,true);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (LibraryException e) {
-            libroLog.log(Level.SEVERE,e.getMessage(),e);
-            modelo.put("error", "Hubo un error guardando el libro");
-            return "libro_form.html";
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return "index.html";
     }
 
     @GetMapping("/lista")
@@ -84,7 +83,7 @@ public class LibroControlador {
             modelo.addAttribute("autores", autores);
             modelo.addAttribute("editoriales", editoriales);
 
-            libroServicio.modificarLibro(isbn, titulo, ejemplares, idAutor, idEditorial);
+            libroServicio.modificarLibro(isbn, titulo, ejemplares, idAutor, idEditorial,true);
             
             return "redirect:../lista";
 

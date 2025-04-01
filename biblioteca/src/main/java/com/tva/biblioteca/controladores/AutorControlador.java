@@ -6,19 +6,21 @@ import java.util.logging.Logger;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.tva.biblioteca.entidades.Autor;
 import com.tva.biblioteca.excepciones.LibraryException;
 import com.tva.biblioteca.servicios.AutorServicio;
 
-@Controller
+@RestController
 @RequestMapping("/autor")
 public class AutorControlador {
     private Logger autorLog = Logger.getLogger(AutorControlador.class.getName());
@@ -31,18 +33,14 @@ public class AutorControlador {
         return "autor_form.html";
     }
 
-    @PostMapping("/registro")
-    public String registro(@RequestParam("nombre") String nombre, ModelMap model){
+    @PostMapping("/crear")
+    public ResponseEntity<Object> crearAutor(@RequestParam("nombre") String nombre, ModelMap model){
         try {
             autorServicio.crearAutor(nombre);    // llamo a mi servicio para persistir
-            model.put("exito", "El autor fue creado de forma exitosa");
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (LibraryException ex) {          
-            autorLog.log(Level.SEVERE, null, ex);
-            model.put("error","Hubo un error creando el autor");
-            return "autor_form.html";
-        }        
-        return "index.html";
-     
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @GetMapping("/lista")
@@ -68,7 +66,7 @@ public class AutorControlador {
     @PostMapping("/modificar/{id}")
     public String modificar(@PathVariable String id, String nombre, ModelMap modelo){
         try {
-            autorServicio.modificarAutor(nombre, id);
+            autorServicio.modificarAutor(nombre, id,true);
             return "redirect:../lista";
         } catch (Exception e) {
             autorLog.log(Level.SEVERE, e.getMessage(), e);

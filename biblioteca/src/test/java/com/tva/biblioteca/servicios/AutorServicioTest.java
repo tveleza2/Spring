@@ -28,6 +28,7 @@ import org.mockito.junit.jupiter.MockitoExtension; // Use it to ensure proper mo
 
 
 import com.tva.biblioteca.repositorios.AutorRepositorio;
+
 import com.tva.biblioteca.entidades.Autor;
 import com.tva.biblioteca.excepciones.LibraryException;
 
@@ -41,7 +42,7 @@ public class AutorServicioTest {
     public AutorServicio autSer;
 
     private Autor sampleAutor;
-    private String validUUID;
+    private UUID validUUID;
 
     @BeforeAll
     public static void initAll(){
@@ -51,7 +52,7 @@ public class AutorServicioTest {
 
     @BeforeEach
     public void setUp(){
-        validUUID = UUID.randomUUID().toString();
+        validUUID = UUID.randomUUID();
         sampleAutor = new Autor();
         sampleAutor.setNombre("TestName");
         sampleAutor.setId(validUUID);
@@ -87,14 +88,14 @@ public class AutorServicioTest {
     @Test
     void testModificarAutorValid() throws Exception{
         // Arrange
-        when(autorRepositorio.findById(UUID.fromString(validUUID))).thenReturn(Optional.of(sampleAutor));
+        when(autorRepositorio.findById(validUUID)).thenReturn(Optional.of(sampleAutor));
         String expectedName = "Modified Autor";
         // Act
-        autSer.modificarAutor(expectedName, validUUID);
+        autSer.modificarAutor(expectedName, validUUID.toString(),true);
         // Assert
         assertEquals(expectedName, sampleAutor.getNombre());
         verify(autorRepositorio,times(1)).save(any(Autor.class));
-        verify(autorRepositorio,times(1)).findById(UUID.fromString(validUUID));
+        verify(autorRepositorio,times(1)).findById(validUUID);
     }
 
 
@@ -102,7 +103,7 @@ public class AutorServicioTest {
     @CsvSource({"d98880b7-9734-4608-9b86-abaee2d31824,    ","1234,validName"})
     void testModificarAutorInvalid(String id, String name) throws LibraryException{
         // Assert
-        assertThrows(Exception.class, ()->autSer.modificarAutor(name, id));
+        assertThrows(Exception.class, ()->autSer.modificarAutor(name, id,true));
     }
 
     @ParameterizedTest

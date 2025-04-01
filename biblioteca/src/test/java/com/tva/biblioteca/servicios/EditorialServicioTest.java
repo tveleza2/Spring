@@ -27,7 +27,7 @@ public class EditorialServicioTest{
     void setUp(){
         validUUID = UUID.randomUUID();
         sampleEditorial = new Editorial();
-        sampleEditorial.setId(validUUID.toString());
+        sampleEditorial.setId(validUUID);
         sampleEditorial.setNombre("Test Editorial");
     }
 

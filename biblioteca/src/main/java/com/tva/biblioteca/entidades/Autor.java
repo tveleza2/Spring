@@ -3,9 +3,18 @@ import java.util.UUID;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 
-
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 @Entity
 public class Autor {
 
@@ -13,25 +22,7 @@ public class Autor {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID id;
 
+    private boolean active;
+
     private String nombre;
-
-    public Autor(){}
-
-    public String getId() {
-        return id.toString();
-    }
-    public String getNombre() {
-        return nombre;
-    }
-    public void setId(String id) {
-        this.id = UUID.fromString(id);
-    }
-    public void setNombre(String name) {
-        this.nombre = name;
-    }
-    @Override
-    public String toString() {
-        // TODO Auto-generated method stub
-        return "Autor: [id: "+getId()+", nombre: "+getNombre()+"]";
-    }
 }

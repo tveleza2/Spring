@@ -1,7 +1,6 @@
 package com.tva.biblioteca.servicios;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -28,7 +27,7 @@ public class LibroServicio {
     private EditorialRepositorio editorialRepositorio;
 
     @Transactional
-    public void crearLibro(Long isbn, String titulo, int ejemplares, String autorId, String editorialId) throws LibraryException{
+    public void crearLibro(Long isbn, String titulo, int ejemplares, String autorId, String editorialId, boolean active) throws LibraryException{
 
         validar(titulo);
         validar(ejemplares);
@@ -38,7 +37,7 @@ public class LibroServicio {
         Autor autor = autorRepositorio.findById(UUID.fromString(autorId)).get();
         Editorial editorial = editorialRepositorio.findById(UUID.fromString(editorialId)).get();
         Libro libro = new Libro();
-        libro.setAlta(new Date());
+        libro.setActive(active);
         libro.setAutor(autor);
         libro.setEditorial(editorial);
         libro.setEjemplares(ejemplares);
@@ -51,11 +50,12 @@ public class LibroServicio {
     public List<Libro> listarLibros(){
         List<Libro> lista = new ArrayList<>();
         lista =libRepositorio.findAll();
+        lista.removeIf(libro->!libro.isActive());
         return lista;
     }
 
     @Transactional
-    public void modificarLibro(Long isbn, String titulo,int ejemplares, String autorId, String editorialId) throws LibraryException{
+    public void modificarLibro(Long isbn, String titulo,int ejemplares, String autorId, String editorialId, boolean active) throws LibraryException{
         validar(ejemplares);
         validar(editorialId);
         validar(titulo);
@@ -81,6 +81,7 @@ public class LibroServicio {
         libro.setEjemplares(ejemplares);
         libro.setAutor(autor);
         libro.setEditorial(editorial);
+        libro.setActive(active);
         libRepositorio.save(libro);
          
     }
@@ -121,6 +122,16 @@ public class LibroServicio {
         if(resp.isPresent()){
             Libro libro = resp.get();
             libro.setEditorial(editorial);
+            libRepositorio.save(libro);
+        }
+    }
+
+    @Transactional
+    public void eliminarLibro(Long id)throws LibraryException{
+        Optional<Libro> possibleLibro = libRepositorio.findById(id);
+        if(possibleLibro.isPresent()){
+            Libro libro = possibleLibro.get();
+            libro.setActive(false);
             libRepositorio.save(libro);
         }
     }

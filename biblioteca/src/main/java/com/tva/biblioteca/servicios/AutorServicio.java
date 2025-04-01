@@ -30,6 +30,7 @@ public class AutorServicio {
         validar(nombre);
         Autor autor = new Autor();
         autor.setNombre(nombre);
+        autor.setActive(true);
         autorRepositorio.save(autor);
     }
     
@@ -37,17 +38,29 @@ public class AutorServicio {
     public List<Autor> listarAutores(){
         List<Autor> lista = new ArrayList<>();
         lista = autorRepositorio.findAll();
+        lista.removeIf(autor->!autor.isActive());
         return lista;
     }
 
     @Transactional
-    public void modificarAutor(String nombre, String id) throws LibraryException{     
+    public void modificarAutor(String nombre, String id, boolean active) throws LibraryException{     
         nombre = nombre.trim();
         validar(nombre);
         Optional<Autor> respuesta = autorRepositorio.findById(UUID.fromString(id));
         if (respuesta.isPresent()) {
             Autor autor = respuesta.get();
             autor.setNombre(nombre);
+            autor.setActive(active);
+            autorRepositorio.save(autor);
+        }
+    }
+
+    @Transactional
+    public void eliminarAutor(String id)throws LibraryException{
+        Optional<Autor> possibleAutor = autorRepositorio.findById(UUID.fromString(id));
+        if(possibleAutor.isPresent()){
+            Autor autor = possibleAutor.get();
+            autor.setActive(false);
             autorRepositorio.save(autor);
         }
     }
@@ -63,6 +76,7 @@ public class AutorServicio {
         validar(nombre);
         Autor autor = new Autor();
         autor.setNombre(nombre);
+        autor.setActive(true);
         return autor;
     }
 

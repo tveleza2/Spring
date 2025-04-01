@@ -1,8 +1,18 @@
 package com.tva.biblioteca.entidades;
-import java.util.Date;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 @Entity
 public class Libro {
 
@@ -13,60 +23,13 @@ public class Libro {
 
     private int ejemplares;
 
-    @Temporal(TemporalType.DATE)
-    private Date alta;
+    private boolean active;
 
     @ManyToOne
     private Autor autor;
 
     @ManyToOne
+    @JoinColumn(name = "editorial_id")
     private Editorial editorial;
-
-    public Libro(){}
-
-    public void setAlta(Date alta) {
-        this.alta = alta;
-    }
-
-    public void setAutor(Autor autor) {
-        this.autor = autor;
-    }
-
-    public void setEditorial(Editorial editorial) {
-        this.editorial = editorial;
-    }
-    public void setEjemplares(int ejemplares) {
-        this.ejemplares = ejemplares;
-    }
-    public void setIsbn(long isbn) {
-        this.isbn = isbn;
-    }
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-    public Date getAlta() {
-        return alta;
-    }
-    public Autor getAutor() {
-        return autor;
-    }
-    public Editorial getEditorial() {
-        return editorial;
-    }
-    public int getEjemplares() {
-        return ejemplares;
-    }
-    public long getIsbn() {
-        return isbn;
-    }
-    public String getTitulo() {
-        return titulo;
-    }
-
-    @Override
-    public String toString() {
-        // TODO Auto-generated method stub
-        return "Libro: [isbn: "+getIsbn()+", titulo: "+getTitulo()+", autor: "+autor.getNombre()+", editorial: "+editorial.getNombre()+", ejemplares: "+getEjemplares()+"]";
-    }
     
 }

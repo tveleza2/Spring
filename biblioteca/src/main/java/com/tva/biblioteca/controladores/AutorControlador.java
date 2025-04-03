@@ -8,9 +8,8 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+// import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,50 +27,26 @@ public class AutorControlador {
     @Autowired
     private AutorServicio autorServicio = new AutorServicio();
 
-    @GetMapping("/registrar")
-    public String registrar(){
-        return "autor_form.html";
-    }
 
     @PostMapping("/crear")
-    public ResponseEntity<Object> crearAutor(@RequestParam("nombre") String nombre, ModelMap model){
+    public ResponseEntity<Object> crearAutor(@RequestParam("nombre") String nombre){
         try {
             autorServicio.crearAutor(nombre);    // llamo a mi servicio para persistir
             return new ResponseEntity<>(HttpStatus.OK);
-        } catch (LibraryException ex) {          
+        } catch (LibraryException ex) {
+            autorLog.log(Level.SEVERE, "Error");          
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/lista")
-    public String listar(ModelMap modelo){
-        List<Autor> autorLista = autorServicio.listarAutores();
-        modelo.put("autores",autorLista);
-        return "autor_list.html";
+    @GetMapping("/listar")
+    public ResponseEntity<Object> listarAutores(){
+        try {
+            List<Autor> autores = autorServicio.listarAutores();
+            return new ResponseEntity<Object>(autores, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @GetMapping("/modificar/{id}")
-    public String modificar(@PathVariable String id,ModelMap modelo){
-        try {
-            Autor oldAutor = autorServicio.findById(id);
-            modelo.put("autor", oldAutor);
-        } catch (Exception e) {
-            autorLog.log(Level.SEVERE, e.getMessage(), e);
-        }
-        return "autor_modificar.html";
-        
-    }
-
-    
-    @PostMapping("/modificar/{id}")
-    public String modificar(@PathVariable String id, String nombre, ModelMap modelo){
-        try {
-            autorServicio.modificarAutor(nombre, id,true);
-            return "redirect:../lista";
-        } catch (Exception e) {
-            autorLog.log(Level.SEVERE, e.getMessage(), e);
-            return "autor_modificar.html";
-        }
-        
-    }
 }

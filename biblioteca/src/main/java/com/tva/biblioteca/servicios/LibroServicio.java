@@ -3,39 +3,48 @@ package com.tva.biblioteca.servicios;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tva.biblioteca.entidades.*;
 import com.tva.biblioteca.excepciones.*;
-import com.tva.biblioteca.repositorios.*;
+import com.tva.biblioteca.modelos.LibroCreateDTO;
+import com.tva.biblioteca.modelos.LibroListarActivosDTO;
+import com.tva.biblioteca.repositorios.LibroRepositorio;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class LibroServicio {
-    @Autowired
-    private LibroRepositorio libRepositorio;
+    private final Logger libroLogger = Logger.getLogger(LibroServicio.class.getName());
 
-    @Autowired
-    private AutorRepositorio autorRepositorio;
+    private final LibroRepositorio libroRepositorio;
 
-    @Autowired
-    private EditorialRepositorio editorialRepositorio;
+    private final AutorServicio autorServicio;
+
+    private final EditorialServicio editorialServicio;
 
     @Transactional
-    public void crearLibro(Long isbn, String titulo, int ejemplares, String autorId, String editorialId, boolean active) throws LibraryException{
-
+    public void crearLibro(LibroCreateDTO libroCreateDTO) throws LibraryException{
+        Long isbn = libroCreateDTO.getIsbn();
+        String titulo = libroCreateDTO.getTitulo();
+        int ejemplares = libroCreateDTO.getEjemplares();
+        String autorId = libroCreateDTO.getIdAutor();
+        String editorialId = libroCreateDTO.getIdEditorial();
+        Boolean active = libroCreateDTO.isActive();
         validar(titulo);
         validar(ejemplares);
         validar(autorId);
         validar(editorialId);
         
-        Autor autor = autorRepositorio.findById(UUID.fromString(autorId)).get();
-        Editorial editorial = editorialRepositorio.findById(UUID.fromString(editorialId)).get();
+        Autor autor = autorServicio.findById(autorId);
+        Editorial editorial = editorialServicio.findById(editorialId);
         Libro libro = new Libro();
         libro.setActive(active);
         libro.setAutor(autor);
@@ -43,14 +52,19 @@ public class LibroServicio {
         libro.setEjemplares(ejemplares);
         libro.setIsbn(isbn);
         libro.setTitulo(titulo);
-        libRepositorio.save(libro);
+        libroRepositorio.save(libro);
     }
 
     @Transactional(readOnly = true)
     public List<Libro> listarLibros(){
         List<Libro> lista = new ArrayList<>();
-        lista =libRepositorio.findAll();
-        lista.removeIf(libro->!libro.isActive());
+        lista =libroRepositorio.findAll();
+        return lista;
+    }
+
+    @Transactional(readOnly = true)
+    public List<LibroListarActivosDTO> listarLibrosActivos(){
+        List<LibroListarActivosDTO> lista = libroRepositorio.buscarActivos();
         return lista;
     }
 
@@ -60,85 +74,78 @@ public class LibroServicio {
         validar(editorialId);
         validar(titulo);
         validar(autorId);
-        Optional<Libro> respuestaLibro = libRepositorio.findById(isbn);
-        Optional<Autor> respuestaAutor = autorRepositorio.findById(UUID.fromString(autorId));
-        Optional<Editorial> respuestaEditorial = editorialRepositorio.findById(UUID.fromString(editorialId));
+        Optional<Libro> respuestaLibro = libroRepositorio.findById(isbn);
+        Autor autor = autorServicio.findById(autorId);
+        Editorial editorial = editorialServicio.findById(editorialId);
 
         
         if(!respuestaLibro.isPresent()){
             throw new LibraryException("El isbn no se encuentra registrado");
         }
-        if(!respuestaAutor.isPresent()){
-            throw new LibraryException("No encontramos ningun autor con el identificador: " + autorId);
-        }
-        if(!respuestaEditorial.isPresent()){
-            throw new LibraryException("No encontramos ninguna editorial con el identificador: " + editorialId);
-        }
+        
         Libro libro = respuestaLibro.get();
-        Autor autor = respuestaAutor.get();
-        Editorial editorial = respuestaEditorial.get();
         libro.setTitulo(titulo);
         libro.setEjemplares(ejemplares);
         libro.setAutor(autor);
         libro.setEditorial(editorial);
         libro.setActive(active);
-        libRepositorio.save(libro);
+        libroRepositorio.save(libro);
          
     }
 
     @Transactional
     public void modificarLibro(Long isbn,String titulo){
-        Optional<Libro> resp = libRepositorio.findById(isbn);
+        Optional<Libro> resp = libroRepositorio.findById(isbn);
         if(resp.isPresent()){
             Libro libro = resp.get();
             libro.setTitulo(titulo);
-            libRepositorio.save(libro);
+            libroRepositorio.save(libro);
         }
     }
 
     @Transactional
     public void modificarLibro(Long isbn,int ejemplares){
-        Optional<Libro> resp = libRepositorio.findById(isbn);
+        Optional<Libro> resp = libroRepositorio.findById(isbn);
         if(resp.isPresent()){
             Libro libro = resp.get();
             libro.setEjemplares(ejemplares);
-            libRepositorio.save(libro);
+            libroRepositorio.save(libro);
         }
     }
 
     @Transactional
     public void modificarLibro(Long isbn, Autor autor){
-        Optional<Libro> resp = libRepositorio.findById(isbn);
+        Optional<Libro> resp = libroRepositorio.findById(isbn);
         if(resp.isPresent()){
             Libro libro = resp.get();
             libro.setAutor(autor);
-            libRepositorio.save(libro);
+            libroRepositorio.save(libro);
         }
     }
 
     @Transactional
     public void modificarLibro(Long isbn, Editorial editorial){
-        Optional<Libro> resp = libRepositorio.findById(isbn);
+        Optional<Libro> resp = libroRepositorio.findById(isbn);
         if(resp.isPresent()){
             Libro libro = resp.get();
             libro.setEditorial(editorial);
-            libRepositorio.save(libro);
+            libroRepositorio.save(libro);
         }
     }
 
     @Transactional
     public void eliminarLibro(Long id)throws LibraryException{
-        Optional<Libro> possibleLibro = libRepositorio.findById(id);
+        Optional<Libro> possibleLibro = libroRepositorio.findById(id);
         if(possibleLibro.isPresent()){
             Libro libro = possibleLibro.get();
             libro.setActive(false);
-            libRepositorio.save(libro);
+            libroRepositorio.save(libro);
         }
     }
 
     @Transactional(readOnly = true)
     public Libro findById(Long isbn) throws EntityNotFoundException{
-        Libro libro = libRepositorio.getReferenceById(isbn);
+        Libro libro = libroRepositorio.getReferenceById(isbn);
         return libro;
     }
 

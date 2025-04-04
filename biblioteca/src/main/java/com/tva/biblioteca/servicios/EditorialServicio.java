@@ -34,6 +34,13 @@ public class EditorialServicio {
     public List<Editorial> listarEditoriales(){
         List<Editorial> lista = new ArrayList<>();
         lista = editorialRepositorio.findAll();
+        return lista;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Editorial> listarEditorialesActivas(){
+        List<Editorial> lista = new ArrayList<>();
+        lista = editorialRepositorio.findAll();
         lista.removeIf(editorial->!editorial.isActive());
         return lista;
     }

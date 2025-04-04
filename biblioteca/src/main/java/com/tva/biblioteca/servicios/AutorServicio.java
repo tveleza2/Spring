@@ -38,6 +38,13 @@ public class AutorServicio {
     public List<Autor> listarAutores(){
         List<Autor> lista = new ArrayList<>();
         lista = autorRepositorio.findAll();
+        return lista;
+    }
+
+    @Transactional(readOnly = true)
+    public List<Autor> listarAutoresActivos(){
+        List<Autor> lista = new ArrayList<>();
+        lista = autorRepositorio.findAll();
         lista.removeIf(autor->!autor.isActive());
         return lista;
     }

@@ -4,102 +4,54 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.*;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.tva.biblioteca.excepciones.LibraryException;
+import com.tva.biblioteca.modelos.LibroCreateDTO;
+import com.tva.biblioteca.modelos.LibroListarActivosDTO;
 import com.tva.biblioteca.servicios.*;
-import com.tva.biblioteca.entidades.*;
+
+import lombok.RequiredArgsConstructor;
 
 
-@Controller
+@RestController
+@RequiredArgsConstructor
 @RequestMapping("/libro")
 public class LibroControlador {
     private Logger libroLog = Logger.getLogger(LibroControlador.class.getName());
-    @Autowired
-    private LibroServicio libroServicio;
-    @Autowired
-    private AutorServicio autorServicio;
-    @Autowired
-    private EditorialServicio editorialServicio;
-    @GetMapping("/registrar")
-    public String registrar(ModelMap modelo){
-        List<Autor> autores = autorServicio.listarAutores();
-        List<Editorial> editoriales = editorialServicio.listarEditoriales();
-        modelo.addAttribute("autores",autores);
-        modelo.addAttribute("editoriales",editoriales);
-        return "libro_form.html";
+
+
+    private final LibroServicio libroServicio;
+
+    @GetMapping("/listar")
+    public ResponseEntity<Object> listarLibrosActivos(){
+        try {
+            libroLog.log(Level.INFO, "Se accedió a listar");
+            List<LibroListarActivosDTO> librosActivos = libroServicio.listarLibrosActivos();
+            libroLog.log(Level.INFO, "La lista recopilada fue: "+librosActivos.toString());
+            return ResponseEntity.status(HttpStatus.OK).body(librosActivos);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"Hubo un problema al consultar la base de datos\"}");
+        }
     }
 
     @PostMapping("/crear")
-    public ResponseEntity<Object> crearLibro(@RequestParam(required = false) Long isbn, @RequestParam String titulo, @RequestParam(required = false) Integer ejemplares,@RequestParam String idAutor, @RequestParam String idEditorial, ModelMap modelo){
+    public ResponseEntity<Object> crearLibro(@RequestBody(required = true) LibroCreateDTO libroCreateDTO){
         try {
-            libroServicio.crearLibro(isbn, titulo, ejemplares, idAutor, idEditorial,true);
+            libroServicio.crearLibro(libroCreateDTO);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (LibraryException e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return  ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("{\"Algun dato no es correcto o es nulo, revisar.\"}");
         }
     }
 
-    @GetMapping("/lista")
-    public String listar(ModelMap modelo){
-        List<Libro> libros = libroServicio.listarLibros();
-        modelo.put("libros", libros);
-        return "libro_list.html";
-    }
-
-    @GetMapping("/modificar/{isbn}")
-    public String modificar(@PathVariable Long isbn,ModelMap modelo){
-        List<Autor> autores = autorServicio.listarAutores();
-        List<Editorial> editoriales = editorialServicio.listarEditoriales();
-        modelo.addAttribute("autores",autores);
-        modelo.addAttribute("editoriales",editoriales);
-        try {
-            Libro libro = libroServicio.findById(isbn);
-            modelo.put("libro", libro);
-        } catch (Exception e) {
-            libroLog.log(Level.SEVERE, e.getMessage(), e);
-        }
-        return "libro_modificar.html";
-        
-    }
-
-    @PostMapping("/modificar/{isbn}")
-    public String modificar(@PathVariable Long isbn, String titulo, Integer ejemplares, String idAutor, String idEditorial, ModelMap modelo) {
-        libroLog.log(Level.INFO, "idEditorial: "+idEditorial);
-        try {
-            
-            List<Autor> autores = autorServicio.listarAutores();
-            List<Editorial> editoriales = editorialServicio.listarEditoriales();
-
-            modelo.addAttribute("autores", autores);
-            modelo.addAttribute("editoriales", editoriales);
-
-            libroServicio.modificarLibro(isbn, titulo, ejemplares, idAutor, idEditorial,true);
-            
-            return "redirect:../lista";
-
-        } catch (Exception ex) {
-            libroLog.log(Level.SEVERE, ex.getMessage(), ex);
-            List<Autor> autores = autorServicio.listarAutores();
-            List<Editorial> editoriales = editorialServicio.listarEditoriales();
-
-            modelo.put("error", ex.getMessage());
-
-            modelo.addAttribute("autores", autores);
-            modelo.addAttribute("editoriales", editoriales);
-
-            return "libro_modificar.html";
-        }
-    }
+   
 
 
 }

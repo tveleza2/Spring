@@ -7,16 +7,17 @@ import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tva.biblioteca.entidades.Editorial;
 import com.tva.biblioteca.excepciones.LibraryException;
+import com.tva.biblioteca.modelos.EditorialCreateDTO;
 import com.tva.biblioteca.servicios.EditorialServicio;
 
 @RestController
@@ -29,9 +30,9 @@ public class EditorialControlador {
 
 
     @PostMapping("/crear")
-    public ResponseEntity<Object> crearEditorial(@RequestParam("nombre") String nombre,ModelMap modelo){
+    public ResponseEntity<Object> crearEditorial(@RequestBody(required=true) EditorialCreateDTO editorialDto){
         try {
-            editorialServicio.crearEditorial(nombre);
+            editorialServicio.crearEditorial(editorialDto);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (LibraryException e) {
             editorialLog.log(Level.SEVERE, "Error");

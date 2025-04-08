@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tva.biblioteca.entidades.Editorial;
 import com.tva.biblioteca.excepciones.LibraryException;
+import com.tva.biblioteca.modelos.EditorialCreateDTO;
 import com.tva.biblioteca.repositorios.EditorialRepositorio;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -26,6 +27,18 @@ public class EditorialServicio {
         validar(nombre);
         Editorial editorial = new Editorial();
         editorial.setNombre(nombre);
+        editorial.setActive(true);
+        editorialRepositorio.save(editorial);
+    }
+
+    @Transactional
+    public void crearEditorial(EditorialCreateDTO editorialDto) throws LibraryException{
+        validar(editorialDto.getNombre());
+        Editorial editorial = new Editorial();
+        editorial.setNombre(editorialDto.getNombre());
+        if (editorialDto.getId()!=null) {
+            editorial.setId(editorialDto.getId());
+        }
         editorial.setActive(true);
         editorialRepositorio.save(editorial);
     }

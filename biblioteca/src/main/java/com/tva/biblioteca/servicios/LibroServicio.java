@@ -3,8 +3,8 @@ package com.tva.biblioteca.servicios;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+// import java.util.logging.Level;
+// import java.util.logging.Logger;
 
 
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class LibroServicio {
-    private final Logger libroLogger = Logger.getLogger(LibroServicio.class.getName());
+    // private final Logger libroLogger = Logger.getLogger(LibroServicio.class.getName());
 
     private final LibroRepositorio libroRepositorio;
 

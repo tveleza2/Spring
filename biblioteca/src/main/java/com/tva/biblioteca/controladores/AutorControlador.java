@@ -12,12 +12,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 // import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tva.biblioteca.entidades.Autor;
 import com.tva.biblioteca.excepciones.LibraryException;
+import com.tva.biblioteca.modelos.AutorCreateDTO;
 import com.tva.biblioteca.servicios.AutorServicio;
 
 @RestController
@@ -30,9 +31,9 @@ public class AutorControlador {
 
 
     @PostMapping("/crear")
-    public ResponseEntity<Object> crearAutor(@RequestParam("nombre") String nombre){
+    public ResponseEntity<Object> crearAutor(@RequestBody(required = true) AutorCreateDTO autorDto){
         try {
-            autorServicio.crearAutor(nombre);    // llamo a mi servicio para persistir
+            autorServicio.crearAutor(autorDto);    // llamo a mi servicio para persistir
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (LibraryException ex) {
             autorLog.log(Level.SEVERE, "Error");          
@@ -61,9 +62,9 @@ public class AutorControlador {
     }
 
     @PatchMapping("/modificar")
-    public ResponseEntity<Object> modificarAutor(@RequestParam String nombre, @RequestParam String id){
+    public ResponseEntity<Object> modificarAutor(@RequestBody(required = true)AutorCreateDTO autorDto){
         try {
-            autorServicio.modificarAutor(nombre, id, true);
+            autorServicio.modificarAutor(autorDto);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tva.biblioteca.entidades.Autor;
 import com.tva.biblioteca.excepciones.LibraryException;
+import com.tva.biblioteca.modelos.AutorCreateDTO;
 import com.tva.biblioteca.repositorios.AutorRepositorio;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -30,6 +31,18 @@ public class AutorServicio {
         validar(nombre);
         Autor autor = new Autor();
         autor.setNombre(nombre);
+        autor.setActive(true);
+        autorRepositorio.save(autor);
+    }
+
+    @Transactional
+    public void crearAutor(AutorCreateDTO autorDto) throws LibraryException{
+        validar(autorDto.getNombre());
+        Autor autor = new Autor();
+        autor.setNombre(autorDto.getNombre());
+        if (autorDto.getId()!=null) {
+            autor.setId(autorDto.getId());
+        }
         autor.setActive(true);
         autorRepositorio.save(autor);
     }
@@ -58,6 +71,18 @@ public class AutorServicio {
             Autor autor = respuesta.get();
             autor.setNombre(nombre);
             autor.setActive(active);
+            autorRepositorio.save(autor);
+        }
+    }
+
+    @Transactional
+    public void modificarAutor(AutorCreateDTO autorDto) throws LibraryException{     
+        validar(autorDto.getNombre());
+        Optional<Autor> respuesta = autorRepositorio.findById(autorDto.getId());
+        if (respuesta.isPresent()) {
+            Autor autor = respuesta.get();
+            autor.setNombre(autorDto.getNombre());
+            autor.setActive(autorDto.isActive());
             autorRepositorio.save(autor);
         }
     }
